@@ -71,7 +71,6 @@ class VAE:
         # decoder
         decoder_input = Input(shape=(self.z_dim,), name='decoder_input')
         x = Dense(np.prod(shape_before_flattening))(decoder_input)
-
         x = Reshape(shape_before_flattening)(x)
 
         for i in range(self.number_of_conv_layers):
@@ -104,10 +103,16 @@ class VAE:
         model_output = self.decoder(encoder_output)
         self.model = Model(model_input, model_output)
 
+        print("Shape before flattening:", shape_before_flattening)
+        print("Shape of encoder output:", backend.int_shape(encoder_output))
+        print("Shape of decoder input:", backend.int_shape(decoder_input))
+
     def compile(self, learning_rate):
         optimizer = Adam(learning_rate=learning_rate)
 
         def loss_fun(y_real, y_pred):
+            print(f"type of y_real: {backend.dtype(y_real)}")
+            print(f"type of y_pred: {backend.dtype(y_pred)}")
             return backend.mean(backend.square(y_pred - y_real), axis=[1, 2, 3])
 
         self.model.compile(optimizer=optimizer, loss=loss_fun, metrics=['accuracy'])
@@ -139,6 +144,7 @@ class VAE:
 
     def train(self, x_train, batch_size, epochs, shuffle):
         self.model.fit(
+            x_train,
             x_train,
             batch_size=batch_size,
             epochs=epochs,
