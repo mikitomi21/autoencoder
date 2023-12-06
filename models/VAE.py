@@ -6,12 +6,13 @@ from keras import backend
 from keras.models import Model
 from keras.optimizers import Adam
 from keras.utils import plot_model
+from keras.callbacks import  ModelCheckpoint
 
 import numpy as np
 import os
 
 
-class VAE:
+class AE:
     def __init__(
             self,
             input_dim,
@@ -103,16 +104,10 @@ class VAE:
         model_output = self.decoder(encoder_output)
         self.model = Model(model_input, model_output)
 
-        print("Shape before flattening:", shape_before_flattening)
-        print("Shape of encoder output:", backend.int_shape(encoder_output))
-        print("Shape of decoder input:", backend.int_shape(decoder_input))
-
     def compile(self, learning_rate):
         optimizer = Adam(learning_rate=learning_rate)
 
         def loss_fun(y_real, y_pred):
-            print(f"type of y_real: {backend.dtype(y_real)}")
-            print(f"type of y_pred: {backend.dtype(y_pred)}")
             return backend.mean(backend.square(y_pred - y_real), axis=[1, 2, 3])
 
         self.model.compile(optimizer=optimizer, loss=loss_fun, metrics=['accuracy'])
@@ -142,13 +137,19 @@ class VAE:
     def load_weights(self, file_path):
         self.model.load_weights(file_path)
 
-    def train(self, x_train, batch_size, epochs, shuffle):
+    def train(self, x_train, batch_size, epochs, shuffle, run_folder):
+
+        checkpoint = ModelCheckpoint(os.path.join(run_folder, 'weights/weights.h5'), save_weights_only=True, verbose=1)
+
+        callback = [checkpoint]
+
         self.model.fit(
             x_train,
             x_train,
             batch_size=batch_size,
             epochs=epochs,
             shuffle=shuffle,
+            callbacks=callback
         )
 
     def plot_model(self, folder):
