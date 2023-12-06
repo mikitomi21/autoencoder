@@ -13,7 +13,7 @@ def load_data():
     return (x_train, y_train), (x_test, y_test)
 
 
-def load_model(folder: str, model_class):
+def load_model(model_class, folder: str):
     with open(os.path.join(folder, 'params.pkl'), 'rb') as f:
         params = pickle.load(f)
 

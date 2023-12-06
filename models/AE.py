@@ -83,16 +83,15 @@ class AE:
                 name=f"conv_layer{i}"
             )
 
-            if i < self.number_of_conv_layers - 1:
-                x = conv_t_layer(x)
+            x = conv_t_layer(x)
 
+            if i < self.number_of_conv_layers - 1:
                 x = BatchNormalization()(x)
 
                 x = LeakyReLU()(x)
 
                 x = Dropout(rate=0.25)(x)
             else:
-                x = conv_t_layer(x)
                 x = Activation('sigmoid')(x)
 
         decoder_output = x
@@ -128,7 +127,6 @@ class AE:
                 self.decoder_filters,
                 self.decoder_kernel_size,
                 self.decoder_strides,
-                self.number_of_conv_layers,
                 self.z_dim,
             ], f)
 
